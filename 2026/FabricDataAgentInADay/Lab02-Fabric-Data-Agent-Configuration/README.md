@@ -34,9 +34,10 @@ Prima di creare un Data Agent, verifica che il tenant Fabric abbia le funzionali
 
 1. Accedi al [Fabric Admin Portal](https://app.fabric.microsoft.com/admin-portal).
 2. Vai su **Tenant settings** → cerca **Copilot**.
-3. Verifica che le seguenti impostazioni siano **abilitate**:
-   - *Copilot and Azure OpenAI Service (preview)*
-   - *Users can use a standalone, cross-item Fabric Copilot (preview)*
+3. Verifica che le seguenti impostazioni siano **abilitate** sotto *Copilot and Azure OpenAI Service*:
+   - *Users can use Copilot and other features powered by Azure OpenAI*
+   - *Users can access a standalone, cross-item Power BI Copilot experience (preview)*
+   - *Capacities can be designated as Fabric Copilot capacities*
 
 > ⚠️ **Attenzione:** le modifiche alle impostazioni tenant possono richiedere alcune ore per propagarsi. Se dopo aver abilitato Copilot il Data Agent non compare tra gli item disponibili, attendere e riprovare.
 

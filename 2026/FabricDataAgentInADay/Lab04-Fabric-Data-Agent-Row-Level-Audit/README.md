@@ -548,7 +548,7 @@ ORDER BY avg_discount_percent DESC;
 
 ### Step 3 – Costruire `final_benchmark_with_expected_answers_v2.xlsx`
 
-Tutte le correzioni identificate nella Parte 4 devono essere propagate nel file benchmark. Il file aggiornato si chiama `final_benchmark_with_expected_answers_v2.xlsx`.
+Tutte le correzioni identificate nella Parte 4 devono essere propagate nel file benchmark. Il file aggiornato è disponibile per comodità qui: [`final_benchmark_with_expected_answers_v2.xlsx`](https://github.com/lucazav/Measure-the-Real-Robustness-of-a-Fabric-Data-Agent-in-Italian/raw/refs/heads/main/final_benchmark_with_expected_answers_v2.xlsx).
 
 Le modifiche riguardano due tipi di intervento:
 
