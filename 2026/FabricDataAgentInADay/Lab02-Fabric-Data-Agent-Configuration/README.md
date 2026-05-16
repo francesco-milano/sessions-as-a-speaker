@@ -58,7 +58,7 @@ Prima di creare un Data Agent, verifica che il tenant Fabric abbia le funzionali
 > Fabric aprirà automaticamente la pagina di configurazione del Data Agent appena creato.
 
 ![Figura 1 — Creazione di un nuovo Data Agent nel workspace](images/fig01-create-data-agent.png)
-*Figura 1 — Creazione di un nuovo Data Agent item (by the author)*
+*Figura 1 — Creazione di un nuovo Data Agent item*
 
 > ✅ **Check:** la pagina di configurazione di `zava-agent` è aperta. Nel pannello a sinistra (Explorer) è visibile la sezione **Setup**.
 
@@ -72,10 +72,10 @@ Prima di creare un Data Agent, verifica che il tenant Fabric abbia le funzionali
 4. Clicca su **Add**.
 
 ![Figura 2 — Aggiunta di un data source al Data Agent](images/fig02-add-data-source.png)
-*Figura 2 — Add a data source to provide grounding data for the Data Agent (by the author)*
+*Figura 2 — Add a data source to provide grounding data for the Data Agent*
 
 ![Figura 3 — Selezione del database ZavaRetail](images/fig03-select-zavarail-datasource.png)
-*Figura 3 — Add the ZavaRetail SQL data source (by the author)*
+*Figura 3 — Add the ZavaRetail SQL data source*
 
 > ✅ **Check:** `ZavaRetail` compare nel pannello Explorer sotto **Data sources**. Sono visibili le tabelle disponibili.
 
@@ -96,7 +96,7 @@ Use it to answer questions about revenue and profitability over time and by stor
 ```
 
 ![Figura 4 — Inserimento della Data source description](images/fig04-data-source-description.png)
-*Figura 4 — Enter the Data source description (by the author)*
+*Figura 4 — Enter the Data source description*
 
 > 💡 **Consiglio:** tratta la descrizione come un documento di onboarding per un analista junior. Descrivi il dominio di dati, non la struttura tecnica delle tabelle.
 
@@ -115,7 +115,7 @@ Nel pannello Explorer, espandi il nodo `ZavaRetail` e seleziona (spunta) le segu
 - `retail.stores`
 
 ![Figura 5 — Selezione delle tabelle iniziali](images/fig05-select-tables-baseline.png)
-*Figura 5 — Check the tables to be used by Data Agent (by the author)*
+*Figura 5 — Check the tables to be used by Data Agent*
 
 > ✅ **Check:** le tre tabelle sono selezionate.
 
@@ -140,7 +140,7 @@ Le **Agent instructions** definiscono le regole comportamentali dell'agente. Nel
 ```
 
 ![Figura 8 — Accesso alle Agent instructions](images/fig08-agent-instructions.png)
-*Figura 8 — Access Agent instructions (by the author)*
+*Figura 8 — Access Agent instructions*
 
 > ✅ **Check:** le istruzioni sono salvate.
 
@@ -174,10 +174,10 @@ WHERE
 ```
 
 ![Figura 6 — Risposta del Data Agent sulla query gross/net](images/fig06-agent-answer-gross-net.png)
-*Figura 6 — Data Agent answer on the total gross amount and total net amount question (by the author)*
+*Figura 6 — Data Agent answer on the total gross amount and total net amount question*
 
 ![Figura 7 — Query SQL generata dal Data Agent per gross/net](images/fig07-agent-thought-gross-net.png)
-*Figura 7 — Data Agent thought about the total gross amount and total net amount question (by the author)*
+*Figura 7 — Data Agent thought about the total gross amount and total net amount question*
 
 > 💡 **Nota:** il Data Agent potrebbe usare un approccio leggermente diverso (es. `unit_price * quantity` invece di `total_amount + discount_amount`). Entrambi gli approcci sono matematicamente equivalenti per questo schema.
 
@@ -195,7 +195,7 @@ Nel pannello Explorer, seleziona (spunta) anche:
 - `retail.categories`
 
 ![Figura 9 — Aggiunta delle tabelle products e categories](images/fig09-add-products-categories.png)
-*Figura 9 — Adding "products" and "categories" tables (by the author)*
+*Figura 9 — Adding "products" and "categories" tables*
 
 > ✅ **Check:** cinque tabelle totali sono ora selezionate.
 
@@ -235,7 +235,7 @@ WHERE
 Verifica prima l'output manuale su SSMS o sull'editor SQL del database:
 
 ![Figura 10 — Net, cost e profit per una specifica categoria](images/fig10-net-cost-profit-category.png)
-*Figura 10 — Net cost and profit for a specific category (by the author)*
+*Figura 10 — Net cost and profit for a specific category*
 
 Poi aggiungi l'example query al Data Agent:
 
@@ -248,7 +248,7 @@ Poi aggiungi l'example query al Data Agent:
 6. Salva.
 
 ![Figura 13 — Aggiunta di un example query per l'uso di total_amount](images/fig13-add-example-query.png)
-*Figura 13 — Adding an example query to show the use of total_amount (by the author)*
+*Figura 13 — Adding an example query to show the use of total_amount*
 
 **Test:** cancella la chat e chiedi:
 > *I need to calculate the net amount, total cost, and profit for products belonging to category POWER TOOLS in January 2025*
@@ -256,7 +256,7 @@ Poi aggiungi l'example query al Data Agent:
 Verifica che la query generata usi `items.total_amount` e non la formula ricostruita.
 
 ![Figura 14 — Utilizzo dell'example query come contesto](images/fig14-example-query-usage.png)
-*Figura 14 — Usage of example queries as context (by the author)*
+*Figura 14 — Usage of example queries as context*
 
 > ✅ **Check:** l'agente usa `items.total_amount` nella query SQL generata.
 
@@ -271,7 +271,7 @@ Per domande su tipologie di prodotto (es. VALVES, POWER TOOLS) all'interno di un
 Nel pannello Explorer, seleziona (spunta) anche `retail.product_types`.
 
 ![Figura 15 — Aggiunta della tabella product_types](images/fig15-add-product-types.png)
-*Figura 15 — Adding the "product types" table (by the author)*
+*Figura 15 — Adding the "product types" table*
 
 > ✅ **Check:** sei tabelle totali sono ora selezionate.
 
@@ -322,10 +322,10 @@ WHERE
 ```
 
 ![Figura 16 — Profit del tipo VALVES nel profit totale della categoria PLUMBING](images/fig16-valves-profit.png)
-*Figura 16 — Valve product type profit within plumbing category profit (by the author)*
+*Figura 16 — Valve product type profit within plumbing category profit*
 
 ![Figura 17 — Query generata dal Data Agent per VALVES in PLUMBING](images/fig17-agent-thought-valves.png)
-*Figura 17 — Data Agent thought about valve product type profit within plumbing category profit (by the author)*
+*Figura 17 — Data Agent thought about valve product type profit within plumbing category profit*
 
 > 💡 **Nota:** è normale che l'agente esprima il risultato come percentuale (es. `8.66%`) invece di ratio (es. `0.086582`). La percentuale è più leggibile per gli utenti finali.
 
@@ -356,10 +356,10 @@ Aggiungi la seguente regola alle **Agent instructions**:
 Cancella la chat e riponi la stessa domanda.
 
 ![Figura 18 — Query con store name sbagliato (prima dell'istruzione)](images/fig18-wrong-store-name.png)
-*Figura 18 — Running totals, gross margin and profit change for the wrong store (by the author)*
+*Figura 18 — Running totals, gross margin and profit change for the wrong store*
 
 ![Figura 19 — Query con store name corretto (dopo l'istruzione)](images/fig19-right-store-name.png)
-*Figura 19 — Running totals, gross margin and profit change for the right store (by the author)*
+*Figura 19 — Running totals, gross margin and profit change for the right store*
 
 > ✅ **Check:** l'agente ora usa `'Zava Retail Bellevue'` nel filtro SQL e restituisce dati.
 
@@ -419,10 +419,10 @@ WHERE
 ```
 
 ![Figura 21 — Net, cost e profit per prodotti pipe related](images/fig21-pipe-related.png)
-*Figura 21 — Net, cost and profit for pipe related products (by the author)*
+*Figura 21 — Net, cost and profit for pipe related products*
 
 ![Figura 22 — Query generata dal Data Agent per prodotti pipe related](images/fig22-agent-thought-pipe.png)
-*Figura 22 — Data Agent thought for net, cost and profit for pipe related products (by the author)*
+*Figura 22 — Data Agent thought for net, cost and profit for pipe related products*
 
 > ✅ **Check:** la query contiene `LIKE '%pipe%'` su `product_description` e i valori corrispondono alla query di riferimento.
 
@@ -456,10 +456,10 @@ L'agente deve:
 2. Rispondere in italiano.
 
 ![Figura 23 — Query sbagliata con termine italiano come literal](images/fig23-wrong-italian-literal.png)
-*Figura 23 — Wrong Data Agent query filtered by product descr, after translated from Italian (by the author)*
+*Figura 23 — Wrong Data Agent query filtered by product descr, after translated from Italian*
 
 ![Figura 24a — Query corretta dopo la regola di traduzione](images/fig24a-right-italian-translated.png)
-*Figura 24 — Right Data Agent query filtered by product descr, after translated from Italian (by the author)*
+*Figura 24 — Right Data Agent query filtered by product descr, after translated from Italian*
 
 > ✅ **Check:** la query SQL usa `'%sink%'` (non `'%lavandini%'`) e la risposta è in italiano.
 
@@ -469,7 +469,7 @@ L'agente deve:
 
 Le colonne di dominio come `category_name` e `type_name` contengono valori in **maiuscolo** (es. `PLUMBING`), mentre `product_name` usa il **title case** (es. `Angle Stop Valve`). Se l'agente usa la traduzione libera del termine italiano senza il casing corretto, il filtro non troverà corrispondenze (specialmente su endpoint con collation case-sensitive).
 
-Aggiungi queste istruzioni alla **Data source description** (sezione aggiuntiva sotto il testo iniziale):
+Aggiungi queste istruzioni alla **Data source instructions** (sezione aggiuntiva sotto il testo iniziale):
 
 ```
 ## Columns content
@@ -494,10 +494,10 @@ L'agente deve:
 3. Rispondere in italiano.
 
 ![Figura 24b — Query sbagliata con category name sbagliato (prima delle istruzioni domain)](images/fig24b-wrong-category-name.png)
-*Figura 24 — Wrong Data Agent query filtered by category name, after translated from Italian (by the author)*
+*Figura 24 — Wrong Data Agent query filtered by category name, after translated from Italian*
 
 ![Figura 25 — Query corretta con category name PLUMBING in uppercase](images/fig25-right-category-name.png)
-*Figura 25 — Right Data Agent query filtered by category name, after translated from Italian (by the author)*
+*Figura 25 — Right Data Agent query filtered by category name, after translated from Italian*
 
 > ✅ **Check:** la query contiene `category_name = 'PLUMBING'` (uppercase) e la risposta è in italiano.
 
@@ -507,7 +507,7 @@ L'agente deve:
 
 Cancella la chat e fai una domanda complessa in italiano:
 
-> *Fornisci i dettagli mese per mese per il prodotto 'Angle Stop Valve' nel negozio di Bellevue nel 2024. Mostra i totali progressivi, il margine lordo e la variazione del profitto. Evidenzia il mese con le vendite nette più alte.*
+> *Fornisci i dettagli mese per mese per il prodotto 'Scrolling Jigsaw' nel negozio di Bellevue nel 2024. Mostra i totali progressivi, il margine lordo e la variazione del profitto. Evidenzia il mese con le vendite nette più alte.*
 
 Poi, facoltativamente, testa la stessa domanda in **francese**:
 
@@ -518,10 +518,10 @@ E in **cinese tradizionale**:
 > *請提供2024年貝爾維尤店 scrolling jigsaw 產品的逐月詳細數據。顯示累計總額、毛利及利潤變動，並標註淨銷售額最高的月份。*
 
 ![Figura 26 — Data Agent risponde in francese](images/fig26-french-answer.png)
-*Figura 26 — Data Agent speaking in French (by the author)*
+*Figura 26 — Data Agent speaking in French*
 
 ![Figura 27 — Data Agent risponde in cinese tradizionale](images/fig27-chinese-answer.png)
-*Figura 27 — Data Agent speaking in Traditional Chinese (by the author)*
+*Figura 27 — Data Agent speaking in Traditional Chinese*
 
 > 💡 **Constraint importante:** i nomi di prodotto, SKU e valori di dominio (categorie, tipi) devono sempre essere forniti **in inglese**, come appaiono nel database. La traduzione del nome prodotto nella lingua dell'utente è ancora inaffidabile e può causare zero risultati.
 
@@ -553,15 +553,19 @@ E in **cinese tradizionale**:
 ```
 
 ![Figura 20 — Agent instructions complete](images/fig20-agent-instructions-final.png)
-*Figura 20 — Agent instructions up to this point (by the author)*
+*Figura 20 — Agent instructions up to this point*
 
-### Data source instructions complete
+### Data source description completa
 
 ```
 This data source contains transactional retail sales for the fictional "Zava DIY" home-improvement company, including orders and order lines across physical stores and online channels, with product details (SKU, name, product type, and category (such as Plumbing, Valves, etc.) and store/location attributes (for example "Zava Retail Seattle" and "Zava Retail Bellevue").
 
 Use it to answer questions about revenue and profitability over time and by store or product grouping, such as: total gross and net amounts for orders in a given month, net sales, total cost, gross profit and gross margin by category or product type, and month-by-month trends for a specific product in a specific store (including running totals and profit deltas).
+```
 
+### Data source instructions complete
+
+```
 ## Columns content
 - Column [category_name] of table [retail].[categories]
     - For category names consider that the allowed values are ELECTRICAL, GARDEN & OUTDOOR, HAND TOOLS, HARDWARE, LUMBER & BUILDING MATERIALS, PAINT & FINISHES, PLUMBING, POWER TOOLS, STORAGE & ORGANIZATION. So, if the users are looking for a specific category, try to understand which of the previous one they are looking for
@@ -595,7 +599,7 @@ Prima di passare al Lab 03, verifica di aver completato tutti i seguenti punti:
 
 ---
 
-## Troubleshooting frequente
+## Troubleshooting Errori Comuni
 
 | Problema | Causa probabile | Soluzione |
 |---|---|---|
@@ -610,7 +614,7 @@ Prima di passare al Lab 03, verifica di aver completato tutti i seguenti punti:
 
 ---
 
-## Nota sul non-determinism del modello
+## Nota sul non-determinismo del modello
 
 L'agente usa un LLM (attualmente GPT-4.1) per generare SQL a partire dal linguaggio naturale. I modelli di questo tipo sono **non deterministici**: la stessa domanda posta in momenti diversi può produrre query leggermente diverse.
 
