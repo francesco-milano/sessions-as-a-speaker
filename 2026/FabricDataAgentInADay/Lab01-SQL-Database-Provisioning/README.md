@@ -41,17 +41,17 @@ File: `zava_retail.bacpac`
 Per eseguire questa conversione è stata creata una VM Windows temporanea su Azure — in modo da avere un ambiente pulito e isolato dove installare SQL Server.
 
 ![Figura 1 — Creazione di una VM Windows per il restore del backup](images/fig01-create-windows-vm.png)
-*Figura 1 — Create a new Windows VM (by the author)*
+*Figura 1 — Create a new Windows VM*
 
 Una volta connessi alla VM via RDP, sono stati installati **SQL Server 2022 Developer Edition** e **SSMS**. Tramite SSMS è stato poi eseguito il restore del file `Zava DIY.bak` sul server locale.
 
 ![Figura 2 — Il database Zava ripristinato su SQL Server](images/fig02-restored-zava-database.png)
-*Figura 2 — The restored zava database (by the author)*
+*Figura 2 — The restored zava database*
 
 Con il database operativo, si è proceduto all'export: tasto destro sul database in SSMS → **Tasks** → **Extract Data-tier Application…** → salva come `zava_retail.bacpac`. Il file è stato poi caricato nel repository pubblico.
 
 ![Figura 3 — Estrazione del file BACPAC tramite SSMS](images/fig03-extract-bacpac.png)
-*Figura 3 — Extract a bacpac file from the zava database (by the author)*
+*Figura 3 — Extract a bacpac file from the zava database*
 
 ---
 
@@ -73,11 +73,11 @@ git clone https://github.com/lucazav/zava-dyi-data-repository.git
 
 ## Step 2 – Verifica della Fabric Capacity
 
-Per usare i SQL Database in Fabric è necessaria una **Fabric Capacity**.
+Per usare i SQL Database in Fabric è necessaria una **Fabric Capacity**. Se non hai una Fabric Trial attiva e/o non ti è possibile attivarla, occorre verificare di avere accesso ad una **Fabric Capacity** esistente o crearne una nuova:
 
 1. Accedi al [portale Azure](https://portal.azure.com)
 2. Cerca **Microsoft Fabric** nella barra di ricerca
-3. Verifica di avere una capacity disponibile oppure creane una nuova:
+3. Verifica di avere una capacity disponibile o, in alternativa, creane una nuova:
    - Vai su **+ Create a resource** → cerca **Fabric capacity**
    - Seleziona una **subscription** e un **Resource Group**
    - Scegli una **region** (preferibilmente vicina agli utenti finali)
@@ -85,10 +85,10 @@ Per usare i SQL Database in Fabric è necessaria una **Fabric Capacity**.
    - Clicca su **Review + Create** → **Create**
 
 ![Figura 4 — Creazione di una Fabric Capacity nel portale Azure](images/fig04-create-fabric-capacity.png)
-*Figura 4 — Create a Fabric capacity in the Azure portal (by the author)*
+*Figura 4 — Create a Fabric capacity in the Azure portal*
 
 ![Figura 5 — Selezione dello SKU F2](images/fig05-select-f2-capacity.png)
-*Figura 5 — Change the Capacity size (by the author)*
+*Figura 5 — Change the Capacity size*
 
 > ⚠️ **Attenzione ai costi:** un F64 costa ~€8.300/mese. Per i lab usa sempre F2 o F4 e ricordati di **stoppare la capacity** al termine della giornata.
 
@@ -107,10 +107,10 @@ Per usare i SQL Database in Fabric è necessaria una **Fabric Capacity**.
 5. Clicca su **Apply**.
 
 ![Figura 6 — Creazione di un nuovo Workspace Fabric](images/fig06-create-workspace.png)
-*Figura 6 — Create a new Fabric Workspace (by the author)*
+*Figura 6 — Create a new Fabric Workspace*
 
 ![Figura 7 — Associazione del Workspace alla Fabric Capacity](images/fig07-assign-workspace-capacity.png)
-*Figura 7 — Associate your Workspace to your Fabric Capacity (by the author)*
+*Figura 7 — Associate your Workspace to your Fabric Capacity*
 
 > ✅ **Check:** il workspace `ZavaRetail` compare nella lista. Sei automaticamente reindirizzato al suo interno.
 
@@ -130,7 +130,7 @@ Per usare i SQL Database in Fabric è necessaria una **Fabric Capacity**.
 5. Attendi che Fabric completi il provisioning. L'interfaccia dell'editor SQL del database si aprirà automaticamente.
 
 ![Figura 8 — Creazione di un nuovo SQL database in Fabric](images/fig08-create-sql-database.png)
-*Figura 8 — Create a new SQL database in Fabric (by the author)*
+*Figura 8 — Create a new SQL database in Fabric*
 
 > ✅ **Check:** l'editor SQL del database `ZavaRetail` è aperto. Nel workspace compaiono due item: il **SQL database** e un **SQL analytics endpoint** con lo stesso nome.
 
@@ -147,7 +147,7 @@ Per eseguire l'import del BACPAC, è necessario conoscere il **Data Source** e l
    - **Initial Catalog**: il nome completo del database incluso il suffisso alfanumerico (es. `ZavaRetail-abcd-1234-...`)
 
 ![Figura 9 — Connection strings del SQL Database in Fabric](images/fig09-connection-strings.png)
-*Figura 9 — Get your connection string details (by the author)*
+*Figura 9 — Get your connection string details*
 
 > ✅ **Check:** hai annotato entrambi i valori. Ti serviranno nel prossimo step.
 
@@ -159,7 +159,7 @@ Per importare il BACPAC nel SQL Database, si usa lo strumento **SqlPackage**, pa
 
 ### 6a – Verifica della presenza di .NET SDK
 
-Prima di installare SqlPackage, verifica che il .NET SDK (versione 8 o superiore) sia già installato:
+Prima di installare SqlPackage, verifica che il .NET SDK (versione 8 o superiore) sia già installato. In un terminale Powershell, esegui il seguente comando:
 
 ```powershell
 dotnet --version
@@ -194,24 +194,23 @@ sqlpackage /version
 > ✅ **Check:** viene visualizzato il numero di versione di SqlPackage (es. `170.x.x.x`).
 
 ![Figura 10 — Installazione di SqlPackage come .NET tool](images/fig10-install-sqlpackage.png)
-*Figura 10 — Install SqlPackage as .NET tool (by the author)*
+*Figura 10 — Install SqlPackage as .NET tool*
 
 ### 6c – Risoluzione del PATH (se necessario)
 
 Se `sqlpackage` non viene riconosciuto anche dopo l'installazione, il problema è che la cartella dei .NET global tools non è nel PATH. Aggiungila manualmente per la sessione corrente:
 
 ```powershell
-# Windows – PowerShell
 $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
 ```
 
-Poi riapri il terminale oppure esegui il comando precedente e verifica di nuovo con `sqlpackage /version`.
+Poi riapri il terminale Powershell oppure esegui il comando precedente e verifica di nuovo con `sqlpackage /version`.
 
 ---
 
 ## Step 7 – Import del BACPAC nel SQL Database
 
-Esegui il seguente comando nel terminale, sostituendo i valori raccolti nello Step 5:
+Esegui il seguente comando nel terminale Powershell, sostituendo i valori raccolti nello Step 5:
 
 ```powershell
 sqlpackage /action:import `
@@ -232,7 +231,7 @@ sqlpackage /action:import `
 > - Il parametro `Authentication=Active Directory Interactive` garantisce l'autenticazione sicura via browser/MFA.
 
 ![Figura 11 — Output dell'import del BACPAC nel SQL Database](images/fig11-import-bacpac.png)
-*Figura 11 — Importing bacpac data into the SQL database in Fabric (by the author)*
+*Figura 11 — Importing bacpac data into the SQL database in Fabric*
 
 > ✅ **Check:** il comando termina senza errori e mostra `Successfully imported database`. Torna al database `ZavaRetail` in Fabric, esegui un **Refresh** e verifica che le tabelle siano comparse nel pannello Explorer a sinistra.
 
@@ -266,7 +265,7 @@ SELECT COUNT(*) AS totale_clienti FROM retail.customers;
 ```
 
 ![Figura 12 — Tabelle Zava DIY visibili nel database Fabric](images/fig12-imported-tables.png)
-*Figura 12 — Zava DYI data tables in your ZavaRetail database in Fabric (by the author)*
+*Figura 12 — Zava DYI data tables in your ZavaRetail database in Fabric*
 
 > ✅ **Check:** le tabelle sono presenti e i conteggi restituiscono valori > 0.
 
@@ -301,20 +300,20 @@ Scarica la versione più recente, esegui il setup e segui l'installazione guidat
 2. Individua l'item di tipo **SQL analytics endpoint** (stesso nome `ZavaRetail`).
 
 ![Figura 13 — SQL Analytics Endpoint visibile nel workspace](images/fig13-sql-analytics-endpoint.png)
-*Figura 13 — You automatically created SQL analytics endpoint for ZavaRetail (by the author)*
+*Figura 13 — SQL Analytics Endpoint for ZavaRetail has been automatically created along with the SQL Database*
 
 3. Clicca sui **tre puntini (…)** accanto all'endpoint e seleziona **Open in SSMS**.
 
 ![Figura 14 — Opzione Open in SSMS sull'endpoint](images/fig14-open-in-ssms.png)
-*Figura 14 — Connect to the SQL analytics endpoint with SSMS (by the author)*
+*Figura 14 — Connect to the SQL analytics endpoint with SSMS*
 
 4. Nella finestra che si apre in Fabric, annota il **Server Name** e il **Database Name**.
 
 ![Figura 15 — Informazioni di connessione all'endpoint](images/fig15-endpoint-connection-info.png)
-*Figura 15 — Endpoint's connection string information (by the author)*
+*Figura 15 — Endpoint's connection string information*
 
 ![Figura 16 — Conferma connessione in SSMS](images/fig16-ssms-connection-confirmation.png)
-*Figura 16 — Validating the Endpoint's link within SSMS (by the author)*
+*Figura 16 — Validating the Endpoint's link within SSMS*
 
 5. Apri SSMS sul tuo PC locale e connettiti usando quei valori:
    - **Authentication:** Azure Active Directory – MFA
@@ -330,7 +329,7 @@ FROM retail.customers;
 ```
 
 ![Figura 17 — Query sull'SQL Analytics Endpoint in SSMS](images/fig17-query-endpoint-ssms.png)
-*Figura 17 — Querying the SQL analytics endpoint (by the author)*
+*Figura 17 — Querying the SQL analytics endpoint*
 
 > ✅ **Check:** la query restituisce dati. L'endpoint è in sola lettura — qualsiasi `INSERT`/`UPDATE`/`DELETE` darà errore (comportamento atteso).
 
@@ -351,7 +350,7 @@ Prima di passare al Lab 02, verifica di aver completato tutti i seguenti punti:
 
 ---
 
-## Troubleshooting Frequente
+## Troubleshooting Errori Comuni
 
 | Problema | Causa probabile | Soluzione |
 |---|---|---|
@@ -373,7 +372,7 @@ Al termine del workshop, ricordati di **stoppare la Fabric Capacity** per evitar
 3. Clicca su **Pause** (non Delete, a meno che tu non voglia rimuoverla definitivamente)
 
 ![Figura 18 — Pause della Fabric Capacity nel portale Azure](images/fig18-pause-capacity.png)
-*Figura 18 — Halting your Fabric Capacity (by the author)*
+*Figura 18 — Halting your Fabric Capacity*
 
 ---
 
