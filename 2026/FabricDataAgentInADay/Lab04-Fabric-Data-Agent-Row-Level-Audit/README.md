@@ -127,7 +127,7 @@ La risposta dell'agente è riproducibile, stabile e allineata alla definizione c
 **Azione:** correggere `expected_answer` per tutti e quattro i variant del cluster EXT03_\* con i valori corretti mostrati in Figura 1.
 
 ![Figura 1 — Valori corretti per il cluster EXT03](images/fig01-ext03-wrong-expected-answer.png)
-*Figura 1 — Correct expected answer values for the EXT03 cluster (by the author)*
+*Figura 1 — Correct expected answer values for the EXT03 cluster*
 
 Il nuovo valore da inserire in `expected_answer` per le quattro varianti è:
 
@@ -198,7 +198,7 @@ WHERE prod.product_name = 'Ball Valve 1/2-Inch'
 Il nome corretto nel database è `'Ball Valve 1/2-inch'` con la `i` minuscola. L'agente ha seguito correttamente la regola "title case", ma ha capitalizzato `inch` come parola indipendente anziché preservarne la forma minuscola originale.
 
 ![Figura 2 — Resultset corretto con "inch" minuscolo](images/fig02-ext09-lowercase-inch.png)
-*Figura 2 — Correct result set using lowercase "inch" (by the author)*
+*Figura 2 — Correct result set using lowercase "inch"*
 
 **Azione:** aggiornare le Data source instructions con una regola più precisa per `product_name`:
 
@@ -323,7 +323,7 @@ ORDER BY
 ```
 
 ![Figura 3 — Resultset corretto per EXT11](images/fig03-ext11-correct-expected-answer.png)
-*Figura 3 — The true expected result set for EXT11 (by the author)*
+*Figura 3 — The true expected result set for EXT11*
 
 Il nuovo valore di `expected_answer` per le varianti EXT11_\* è:
 
@@ -347,7 +347,7 @@ invece della formula approvata:
 SUM(items.total_amount - prod.cost * items.quantity) AS profit
 ```
 
-Questo non è un errore cosmetic: tratta il prezzo di listino come se fosse il ricavo netto realizzato, mescolando la logica di Total Net Amount con quella di Profit.
+Questo non è un errore cosmetico: tratta il prezzo di listino come se fosse il ricavo netto realizzato, mescolando la logica di Total Net Amount con quella di Profit.
 
 **Azioni:**
 
@@ -592,7 +592,7 @@ print(f"Unique ID for the current evaluation run: {evaluation_id}")
 L'output dell'esecuzione dovrebbe già segnalare solo 2 risposte non corrispondenti al ground truth:
 
 ![Figura 4 — Output del benchmark v2 con sole 2 risposte non corrispondenti](images/fig04-benchmark-v2-execution-output.png)
-*Figura 4 — Output of the revised benchmark execution (by the author)*
+*Figura 4 — Output of the revised benchmark execution*
 
 ### Step 5 – Verificare il summary
 
@@ -611,7 +611,7 @@ summary_df[summary_df["evaluation_id"].isin(ids_to_show)]
 Il risultato atteso è **70 True, 2 False**, corrispondente a un'accuracy del **97.2%**:
 
 ![Figura 5 — Summary del benchmark v2: 70/72, 97.2%](images/fig05-benchmark-v2-summary.png)
-*Figura 5 — Summary statistics of the revised benchmark execution (by the author)*
+*Figura 5 — Summary statistics of the revised benchmark execution*
 
 > ✅ **Check:** il summary mostra accuracy ≥ 97% per questa run.
 
