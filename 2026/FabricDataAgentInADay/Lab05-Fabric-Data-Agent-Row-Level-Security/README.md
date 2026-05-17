@@ -35,7 +35,7 @@ Prima di configurare la RLS, è utile capire con quale identità il motore SQL i
 
 ### Step 1 – Eseguire `SELECT USER_NAME()`
 
-Apri l'editor SQL del database `ZavaRetail` (puoi usare il query editor integrato in Fabric, SSMS, o Azure Data Studio) e lancia:
+Apri l'editor SQL del database `ZavaRetail` (puoi usare il query editor integrato in Fabric o SSMS) e lancia:
 
 ```sql
 SELECT USER_NAME();
@@ -65,6 +65,8 @@ La funzione `dbo.fn_StoresSecurity` implementa la seguente logica:
 
 - l'utente **admin** può vedere tutte le righe (qualsiasi `store_id`)
 - l'utente **reader** può vedere solo le righe dei negozi con `store_id IN (1, 2, 6)`, corrispondenti a Seattle, Bellevue e Redmond
+
+Sarebbe meglio che tali valori fossero basati su una tabella di mapping, ma per semplicità in questo lab li hardcodiamo direttamente nella funzione. Ecco la definizione completa:
 
 ```sql
 CREATE OR ALTER FUNCTION dbo.fn_StoresSecurity(@StoreId AS INT)
@@ -107,6 +109,8 @@ WITH (STATE = ON);
 
 > 💡 **Filter predicate vs Block predicate:** la RLS supporta due tipi di predicato. Il **filter predicate** (quello che stiamo usando) filtra silenziosamente le righe in lettura: l'utente non riceve un errore, vede semplicemente meno dati. Il **block predicate** blocca operazioni di scrittura non autorizzate. Per gli scenari di Data Agent in sola lettura, il filter predicate è sempre la scelta corretta.
 
+Essendo la tabella `[retail].[orders]` una tabella di fatto centrale, è sufficiente applicare la RLS su di essa. Le altre tabelle (es. `[retail].[order_items]`, `[retail].[stores]`) sono collegate tramite join, quindi il filtro sulla tabella degli ordini si propaga naturalmente a tutte le query che coinvolgono quelle tabelle.
+
 > ✅ **Check:** la security policy `UserFilter` è stata creata con `STATE = ON` e non ha generato errori.
 
 ---
@@ -115,15 +119,34 @@ WITH (STATE = ON);
 
 Prima di procedere con il Data Agent, verifica direttamente nel query editor che la policy sia attiva e che il filtro funzioni.
 
+**Test come utente admin:**
+
 Esegui la seguente query come utente admin:
 
 ```sql
 SELECT DISTINCT store_id FROM [retail].[orders] ORDER BY store_id;
 ```
 
-Dovresti vedere tutti i `store_id` disponibili nel database. Se stai usando l'editor di Fabric con l'utente admin, questo è il comportamento atteso perché la funzione di predicato restituisce 1 per qualsiasi `store_id` quando `USER_NAME()` corrisponde all'admin.
+Dovresti vedere tutti i `store_id` disponibili nel database (da 1 a 8). Se stai usando l'editor di Fabric o SSMS con l'utente admin, questo è il comportamento atteso perché la funzione di predicato restituisce 1 per qualsiasi `store_id` quando `USER_NAME()` corrisponde all'admin.
 
-> ✅ **Check:** come admin, la query restituisce tutti i `store_id`. La policy è attiva e il tuo utente admin ha accesso completo.
+**Test come utente reader:**
+
+Esegui la stessa query aprendola con una connessione autenticata come utente *reader*:
+
+```sql
+SELECT DISTINCT store_id FROM [retail].[orders] ORDER BY store_id;
+```
+
+In questo caso dovresti vedere **solo i `store_id` 1, 2 e 6** (Seattle, Bellevue e Redmond), perché la funzione di predicato restituisce 1 esclusivamente per quei valori quando `USER_NAME()` corrisponde al reader. Tutti gli altri `store_id` vengono filtrati silenziosamente prima che il result set raggiunga il chiamante.
+
+La differenza tra i due risultati conferma che la policy è attiva e funziona correttamente:
+
+| Utente | `store_id` restituiti |
+|---|---|
+| admin | 1, 2, 3, 4, 5, 6, 7, 8 (tutti) |
+| reader | 1, 2, 6 (solo Seattle, Bellevue, Redmond) |
+
+> ✅ **Check:** come admin la query restituisce tutti i `store_id`; come reader restituisce solo 1, 2 e 6. La policy è attiva e il filtro RLS produce il comportamento atteso per entrambi gli utenti.
 
 ---
 
@@ -138,10 +161,10 @@ Per poter testare il comportamento dell'utente reader, il Data Agent deve essere
 
 1. Apri la pagina di configurazione del `zava-agent` nel workspace Fabric.
 2. Nella ribbon in alto, clicca sul pulsante **Publish**.
-3. Conferma la pubblicazione nella finestra di dialogo.
+3. Nella finestra di dialogo fornisci una descrizione che fornisce un contesto quando l'agent appare in altre esperienze (es. Power BI Copilot, M365 Copilot, ecc.). Lascia a *off* la pubblicazione nell'Agent Store di M365 Copilot, e poi clicca su **Publish**.
 
 ![Figura 1 — Pulsante Publish nella ribbon del Data Agent](images/fig01-publish-data-agent.png)
-*Figura 1 — Click Publish to make the Data Agent available to other users (by the author)*
+*Figura 1 — Click Publish to make the Data Agent available to other users*
 
 > 💡 **Sandbox vs Published:** finché il Data Agent è in modalità sandbox, solo il creatore può usarlo. La pubblicazione lo rende accessibile agli utenti con cui viene condiviso. Le modifiche alla configurazione dopo la pubblicazione richiedono una nuova pubblicazione.
 
@@ -153,24 +176,21 @@ Per poter testare il comportamento dell'utente reader, il Data Agent deve essere
 
 Se l'utente reader non ha già accesso al workspace, devi condividere il Data Agent esplicitamente.
 
-Hai due opzioni:
+Per l'accesso al workspace, basta cliccare su **Manage access** nella pagina del workspace e aggiungere l'utente reader con ruolo di **Viewer** o superiore:
 
-**Opzione A – Share dal pulsante nella configurazione del Data Agent:**
+![Figura 2 — Accesso al workspace per l'utente reader](images/fig02-share-workspace.png)
+*Figura 2 — Accesso al workspace per l'utente reader*
+
+Se invece vuoi condividere solo il Data Agent senza dare accesso completo al workspace, puoi farlo direttamente dalla pagina di configurazione del Data Agent. In questo caso, puoi condividere tramite il pulsante **Share** nella configurazione del Data Agent:
 
 1. Nella pagina di configurazione del `zava-agent`, clicca sul pulsante **Share** nella ribbon in alto.
 2. Inserisci l'indirizzo email dell'utente reader.
 3. Seleziona il livello di permesso appropriato (sola lettura per il reader).
 4. Clicca su **Grant access**.
 
-**Opzione B – Gestione utenti dall'icona chiave:**
 
-1. Nella pagina di configurazione del `zava-agent`, clicca sull'**icona a forma di chiave** nell'angolo in alto a destra.
-2. Si apre la lista degli utenti con accesso al Data Agent.
-3. Clicca su **Add user** e inserisci l'email del reader.
-4. Clicca su **Save**.
-
-![Figura 2 — Condivisione del Data Agent con l'utente reader](images/fig02-share-data-agent.png)
-*Figura 2 — Share the Data Agent with the reader user (by the author)*
+![Figura 3 — Condivisione del Data Agent con l'utente reader](images/fig03-share-data-agent.png)
+*Figura 3 — Condivisione del Data Agent con l'utente reader*
 
 > ✅ **Check:** l'utente reader compare nella lista degli utenti con accesso al Data Agent.
 
@@ -178,17 +198,17 @@ Hai due opzioni:
 
 ## Parte 4 – Demo comparativa: admin vs reader
 
-Ora hai tutto il necessario per la demo principale. Userai la stessa identica domanda in due sessioni browser separate, loggato come admin nella prima e come reader nella seconda.
+Ora hai tutto il necessario per la demo principale. Userai la stessa identica domanda in due sessioni browser separate, loggato come *admin* nella prima e come *reader* nella seconda.
 
 **La domanda:**
 
 ```
-Retrieve the total gross amount and total net amount grouped by store for all orders placed in March 2022 at Seattle and Tacoma stores
+Recupera l'importo lordo totale e l'importo netto totale, raggruppati per punto vendita, relativi a tutti gli ordini effettuati nel mese di marzo 2022 nei punti vendita di Seattle e Tacoma
 ```
 
 ### Step 7 – Query come utente admin
 
-Apri la sessione browser dove sei loggato come admin. Naviga al `zava-agent` e inserisci la domanda.
+Apri la sessione browser dove sei loggato come *admin*. Naviga al `zava-agent` e inserisci la domanda.
 
 Il risultato atteso:
 
@@ -197,14 +217,14 @@ Il risultato atteso:
 | Zava Retail Seattle | $151,478.70 | $148,701.32 |
 | Zava Retail Tacoma | $67,658.48 | $66,438.70 |
 
-![Figura 3 — Risposta del Data Agent come utente admin](images/fig03-admin-response.png)
-*Figura 3 — Data Agent response as admin user: both Seattle and Tacoma are visible (by the author)*
+![Figura 4 — Risposta del Data Agent come utente admin](images/fig04-admin-response.png)
+*Figura 4 — Risposta del Data Agent come utente admin: sia Seattle che Tacoma sono visibili*
 
 L'admin vede entrambi i negozi perché la funzione `fn_StoresSecurity` restituisce 1 per qualsiasi `store_id` quando l'utente è l'admin.
 
 ### Step 8 – Query come utente reader
 
-Apri la sessione browser dove sei loggato come reader. Naviga al `zava-agent` (che hai condiviso nel Step 6) e inserisci la stessa domanda.
+Apri la sessione browser dove sei loggato come *reader*. Naviga al `zava-agent` (che hai condiviso nel Step 6) e inserisci la stessa domanda.
 
 Il risultato atteso:
 
@@ -212,12 +232,10 @@ Il risultato atteso:
 |---|---|---|
 | Zava Retail Seattle | $151,478.70 | $148,701.24 |
 
-![Figura 4 — Risposta del Data Agent come utente reader](images/fig04-reader-response.png)
-*Figura 4 — Data Agent response as reader user: only Seattle is visible (by the author)*
+![Figura 5 — Risposta del Data Agent come utente reader](images/fig05-reader-response.png)
+*Figura 5 — Risposta del Data Agent come utente reader: solo Seattle è visibile*
 
 Il reader vede solo Seattle perché la funzione `fn_StoresSecurity` restituisce 1 solo per `store_id IN (1, 2, 6)` quando l'utente è il reader. Tacoma ha un `store_id` diverso da questi tre, quindi le righe di Tacoma vengono filtrate silenziosamente dal motore SQL prima che il result set raggiunga l'agente.
-
-> 💡 **Nota sulla differenza nel Total Net Amount di Seattle:** potresti notare una piccola differenza nell'ultima cifra del Total Net Amount di Seattle tra la risposta admin (`$148,701.32`) e la risposta reader (`$148,701.24`). Questo è dovuto al non-determinismo del modello LLM nel rounding della risposta finale in prosa, non a una differenza nei dati. Il valore SQL restituito è lo stesso.
 
 ### Step 9 – Ispezionare la query SQL generata
 
@@ -248,9 +266,9 @@ GROUP BY
 store.store_name;
 ```
 
-Questa query non contiene nessun filtro su `user_name`, nessun `CASE` sulle autorizzazioni, nessuna logica di sicurezza. Quando il reader la esegue, il motore SQL applica silenziosamente il predicato `dbo.fn_StoresSecurity(store_id)` per ogni riga della tabella `[retail].[orders]` prima di costruire il join, escludendo le righe di Tacoma prima che possano entrare nel result set.
+Questa query non contiene nessun filtro su `user_name`, nessun `CASE` sulle autorizzazioni, nessuna logica di sicurezza. Quando il *reader* la esegue, il motore SQL applica silenziosamente il predicato `dbo.fn_StoresSecurity(store_id)` per ogni riga della tabella `[retail].[orders]` prima di costruire il join, escludendo le righe di Tacoma prima che possano entrare nel result set.
 
-La RLS è working like a charm. 🙂
+La RLS sta funzionando alla grande! 🙂
 
 > ✅ **Check:** hai osservato la differenza nei result set tra admin e reader con la stessa domanda. Hai verificato che la query SQL generata è identica per entrambi.
 
@@ -265,8 +283,8 @@ Il Data Agent pubblicato è accessibile non solo dalla sua pagina di configurazi
 1. Da [app.fabric.microsoft.com](https://app.fabric.microsoft.com), clicca sull'icona **Copilot** nella barra di navigazione laterale sinistra (oppure cerca "Copilot" dalla home).
 2. Si apre l'esperienza conversazionale standalone di Power BI Copilot.
 
-![Figura 5 — Icona Copilot nella barra di navigazione Fabric](images/fig05-copilot-navigation.png)
-*Figura 5 — Open Power BI Copilot from the Fabric navigation bar (by the author)*
+![Figura 6 — Icona Copilot nella barra di navigazione Fabric](images/fig06-copilot-navigation.png)
+*Figura 6 — Apri Power BI Copilot dalla barra di navigazione di Fabric*
 
 > ⚠️ **Prerequisito tenant:** per poter usare Power BI Copilot in modalità standalone, l'impostazione *Users can access a standalone, cross-item Power BI Copilot experience (preview)* deve essere abilitata nel Fabric Admin Portal (vedi Lab 02, Step 1).
 
@@ -274,12 +292,11 @@ Il Data Agent pubblicato è accessibile non solo dalla sua pagina di configurazi
 
 Nell'interfaccia di Power BI Copilot:
 
-1. Clicca sul selettore della sorgente dati (tipicamente una dropdown o un pulsante vicino al box di input).
-2. Seleziona **Data Agent** come tipo di sorgente.
-3. Dall'elenco degli agenti disponibili, seleziona `zava-agent` (quello che hai pubblicato e condiviso).
+1. Clicca sul selettore della sorgente dati (il pulsante `+` nel box di input).
+2. Seleziona **zava-agent** (o qualsiasi altro nome avevi scelto) come tipo di sorgente (quello che hai pubblicato e condiviso).
 
-![Figura 6 — Selezione del Data Agent pubblicato in Power BI Copilot](images/fig06-copilot-select-agent.png)
-*Figura 6 — Select the published Data Agent as the data source in Power BI Copilot (by the author)*
+![Figura 7 — Selezione del Data Agent pubblicato in Power BI Copilot](images/fig07-copilot-select-agent.png)
+*Figura 7 — Seleziona il Data Agent pubblicato come sorgente dati in Power BI Copilot*
 
 > 💡 **Agenti disponibili:** Power BI Copilot mostra solo i Data Agent a cui l'utente corrente ha accesso, cioè quelli pubblicati e condivisi con quell'utente. Se il `zava-agent` non compare nell'elenco, verifica che la pubblicazione (Step 5) e la condivisione (Step 6) siano state completate correttamente.
 
@@ -288,19 +305,19 @@ Nell'interfaccia di Power BI Copilot:
 Con il `zava-agent` selezionato come sorgente, poni una domanda al Copilot. Puoi usare la stessa domanda della demo RLS:
 
 ```
-Retrieve the total gross amount and total net amount grouped by store for all orders placed in March 2022 at Seattle and Tacoma stores
+Recupera l'importo lordo totale e l'importo netto totale, raggruppati per punto vendita, relativi a tutti gli ordini effettuati nel mese di marzo 2022 nei punti vendita di Seattle e Tacoma
 ```
 
 Oppure una domanda diversa per mostrare la versatilità dell'agente, ad esempio:
 
 ```
-Quali sono i top 5 prodotti per Total Net Amount nel 2025?
+Quali sono i top 5 prodotti per importo netto totale nel 2025?
 ```
 
 Power BI Copilot inoltrerà la domanda al Data Agent, riceverà la risposta e la presenterà nell'interfaccia conversazionale.
 
-![Figura 7 — Risposta del Data Agent attraverso Power BI Copilot](images/fig07-copilot-agent-response.png)
-*Figura 7 — Data Agent answer surfaced through the Power BI Copilot experience (by the author)*
+![Figura 8 — Risposta del Data Agent attraverso Power BI Copilot](images/fig08-copilot-agent-response.png)
+*Figura 8 — Risposta del Data Agent attraverso Power BI Copilot*
 
 > 💡 **Perché Power BI Copilot è importante per questa demo:** l'esperienza Copilot è il punto di accesso finale per gli utenti di business. Dimostrare che il Data Agent funziona correttamente anche attraverso questo layer mostra il percorso completo: dalla configurazione tecnica del Lab 02, alla sicurezza dei dati del Lab 05, fino all'esperienza utente finale in Copilot. La RLS applicata al database rimane attiva anche in questo contesto: se l'utente loggato è il reader, vedrà comunque solo i dati dei negozi di Seattle, Bellevue e Redmond, indipendentemente da quale interfaccia usa per fare la domanda.
 
@@ -333,7 +350,7 @@ Prima di considerare il Lab 05 completato:
 - [ ] `SELECT USER_NAME()` eseguito e valore annotato per l'utente admin
 - [ ] Funzione `dbo.fn_StoresSecurity` creata senza errori
 - [ ] Security policy `UserFilter` creata con `STATE = ON`
-- [ ] Verifica rapida: come admin, la query su `store_id` restituisce tutti i valori
+- [ ] Verifica rapida: come admin la query su `store_id` restituisce tutti i valori (1–8); come reader restituisce solo 1, 2 e 6
 - [ ] Data Agent `zava-agent` pubblicato
 - [ ] Data Agent `zava-agent` condiviso con l'utente reader
 - [ ] Demo comparativa eseguita: admin vede Seattle + Tacoma, reader vede solo Seattle
