@@ -681,7 +681,7 @@ Prima di considerare il Lab 04 completato:
 
 ---
 
-## Troubleshooting frequente
+## Troubleshooting Errori Comuni
 
 | Problema | Causa probabile | Soluzione |
 |---|---|---|
