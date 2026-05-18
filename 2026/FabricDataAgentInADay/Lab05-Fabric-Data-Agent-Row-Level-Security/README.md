@@ -94,14 +94,21 @@ AS
 
 ---
 
-### Step 3 – Creare la security policy
+### Step 3 – Creare le security policy
 
-La security policy aggangia la funzione di predicato alla tabella `[retail].[orders]` usando la colonna `store_id` come argomento di filtro:
+Le security policy agganciano la funzione di predicato alle tabella `[retail].[orders]` e `[retail].[order_items]` usando la colonna `store_id` come argomento di filtro:
 
 ```sql
-CREATE SECURITY POLICY UserFilter
+CREATE SECURITY POLICY UserFilterOrders
 ADD FILTER PREDICATE dbo.fn_StoresSecurity(store_id) 
 ON [retail].[orders]
+WITH (STATE = ON);
+```
+
+```sql
+CREATE SECURITY POLICY UserFilterOrderItems
+ADD FILTER PREDICATE dbo.fn_StoresSecurity(store_id) 
+ON [retail].[order_items]
 WITH (STATE = ON);
 ```
 
@@ -109,7 +116,7 @@ WITH (STATE = ON);
 
 > 💡 **Filter predicate vs Block predicate:** la RLS supporta due tipi di predicato. Il **filter predicate** (quello che stiamo usando) filtra silenziosamente le righe in lettura: l'utente non riceve un errore, vede semplicemente meno dati. Il **block predicate** blocca operazioni di scrittura non autorizzate. Per gli scenari di Data Agent in sola lettura, il filter predicate è sempre la scelta corretta.
 
-Essendo la tabella `[retail].[orders]` una tabella di fatto centrale, è sufficiente applicare la RLS su di essa. Le altre tabelle (es. `[retail].[order_items]`, `[retail].[stores]`) sono collegate tramite join, quindi il filtro sulla tabella degli ordini si propaga naturalmente a tutte le query che coinvolgono quelle tabelle.
+Durante i nostri test, i Data Agent si sono rivelati piacevolmente smart. Nonostante le query di esempio fornite prevedessero sempre una catena di join complessa, domande come **"Qual è il totale del venduto dell'intero database?"** sono state risolte (correttamente) come una semplice aggregazione sulla tabella `[retail].[order_items]`. Questo comportamento ci costringe ad applicare le security policy a testate e righe. In uno scenario reale e complesso, tuttavia, la soluzione prevederebbe di definire più predicati, uno per ogni campo di chiave esterna.
 
 > ✅ **Check:** la security policy `UserFilter` è stata creata con `STATE = ON` e non ha generato errori.
 
