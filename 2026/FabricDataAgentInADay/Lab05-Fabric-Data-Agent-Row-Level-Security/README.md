@@ -116,7 +116,7 @@ WITH (STATE = ON);
 
 > 💡 **Filter predicate vs Block predicate:** la RLS supporta due tipi di predicato. Il **filter predicate** (quello che stiamo usando) filtra silenziosamente le righe in lettura: l'utente non riceve un errore, vede semplicemente meno dati. Il **block predicate** blocca operazioni di scrittura non autorizzate. Per gli scenari di Data Agent in sola lettura, il filter predicate è sempre la scelta corretta.
 
-Durante i nostri test, i Data Agent si sono rivelati piacevolmente smart. Nonostante le query di esempio fornite prevedessero sempre una catena di join complessa, domande come **"Qual è il totale del venduto dell'intero database?"** sono state risolte (correttamente) come una semplice aggregazione sulla tabella `[retail].[order_items]`. Questo comportamento ci costringe ad applicare le security policy a testate e righe. In uno scenario reale e complesso, tuttavia, la soluzione prevederebbe di definire più predicati, uno per ogni campo di chiave esterna.
+Durante i nostri test, i Data Agent si sono rivelati piacevolmente smart. Nonostante le query di esempio fornite prevedessero sempre una catena di join complessa, domande come **"Qual è il totale del venduto dell'intero database?"** sono state risolte (correttamente) come una semplice aggregazione sulla tabella `[retail].[order_items]`. Questo comportamento ci costringe ad applicare le security policy sia alle testate che alle righe ordine. In uno scenario reale e complesso, tuttavia, la soluzione prevederebbe di definire più predicati, uno per ogni campo di chiave esterna.
 
 > ✅ **Check:** la security policy `UserFilter` è stata creata con `STATE = ON` e non ha generato errori.
 
