@@ -171,19 +171,19 @@ Per rendere il file Excel accessibile da un notebook Fabric, è necessario caric
 3. Assegna il nome **`evaluation`** e clicca su **Create**.
 
 ![Figura 1 — Creazione del Lakehouse evaluation](images/fig01-create-evaluation-lakehouse.png)
-*Figura 1 — Create the "evaluation" Lakehouse (by the author)*
+*Figura 1 — Create the "evaluation" Lakehouse*
 
 4. Apri il Lakehouse appena creato.
 5. Vai nella sezione **Files**.
 6. Carica il file `final_benchmark_with_expected_answers.xlsx`.
 
 ![Figura 2 — Upload del file benchmark nel Lakehouse](images/fig02-upload-benchmark-file.png)
-*Figura 2 — Upload the benchmark Excel file into the Lakehouse (by the author)*
+*Figura 2 — Upload the benchmark Excel file into the Lakehouse*
 
 7. Una volta caricato, clicca sui **tre puntini (…)** accanto al file e seleziona **Copy ABFS path**. Annota questo valore: ti servirà nel notebook.
 
 ![Figura 3 — Copia del percorso ABFS del file benchmark](images/fig03-copy-abfs-path.png)
-*Figura 3 — Copy the ABFS path of the benchmark Excel file (by the author)*
+*Figura 3 — Copy the ABFS path of the benchmark Excel file*
 
 > ✅ **Check:** il Lakehouse `evaluation` è creato, il file Excel è caricato nella sezione Files, e hai copiato il path ABFS del file.
 
@@ -197,7 +197,7 @@ Per rendere il file Excel accessibile da un notebook Fabric, è necessario caric
 4. Una volta aperto il notebook, cambia il kernel in **Python** dalla barra degli strumenti in alto.
 
 ![Figura 4 — Cambio del kernel del notebook in Python](images/fig04-notebook-python-kernel.png)
-*Figura 4 — Change the kernel of the zava_agent_evaluation notebook to Python (by the author)*
+*Figura 4 — Change the kernel of the zava_agent_evaluation notebook to Python*
 
 > ✅ **Check:** il notebook `zava_agent_evaluation` è aperto con kernel Python.
 
@@ -241,12 +241,12 @@ Questo passaggio è **obbligatorio** prima di eseguire `evaluate_data_agent`. Il
 2. Clicca su **+ Add data**.
 
 ![Figura 5 — Aggiunta di un nuovo data item al notebook](images/fig05-add-data-item-to-notebook.png)
-*Figura 5 — Add a new data item to the evaluation notebook (by the author)*
+*Figura 5 — Add a new data item to the evaluation notebook*
 
 3. Seleziona il Lakehouse **`evaluation`** (quello con l'icona a onde) e clicca su **Add**.
 
 ![Figura 6 — Aggiunta del Lakehouse evaluation come default](images/fig06-add-default-lakehouse.png)
-*Figura 6 — Add the evaluation lakehouse as default lakehouse (by the author)*
+*Figura 6 — Add the evaluation lakehouse as default lakehouse*
 
 > ✅ **Check:** il Lakehouse `evaluation` compare nel pannello Explorer del notebook come data item.
 
@@ -291,7 +291,7 @@ L'evaluation ID è univoco per ogni run. Se esegui il benchmark più volte, ogni
 Al termine dell'esecuzione, aggiorna la cartella **Tables** nel Lakehouse `evaluation`: dovranno comparire le due tabelle create automaticamente dall'SDK.
 
 ![Figura 7 — Tabelle di valutazione create nel Lakehouse](images/fig07-evaluation-tables-created.png)
-*Figura 7 — Evaluation tables created in the default lakehouse (by the author)*
+*Figura 7 — Evaluation tables created in the default lakehouse*
 
 > ⚠️ **Attenzione:** la prima esecuzione del benchmark completo richiede diversi minuti. Non interrompere il notebook durante l'esecuzione.
 
@@ -315,17 +315,17 @@ summary_df
 La funzione restituisce le metriche aggregate: totale domande valutate, conteggi correct/incorrect/unclear e accuracy complessiva.
 
 ![Figura 8 — Risultati che non corrispondono al ground truth (primo run)](images/fig08-suboptimal-results.png)
-*Figura 8 — Results that don't match the ground truth (by the author)*
+*Figura 8 — Results that don't match the ground truth*
 
 > 💡 È possibile cliccare sui link presenti nell'output per vedere il dettaglio della risposta dell'agente per ogni domanda.
 
 ![Figura 9 — Dettaglio di un thread di valutazione](images/fig09-evaluation-thread-detail.png)
-*Figura 9 — Example of one thread highlighted by the evaluation (by the author)*
+*Figura 9 — Example of one thread highlighted by the evaluation*
 
 Dopo alcune correzioni al file benchmark (vedi Step 11), il summary dovrebbe apparire più coerente:
 
 ![Figura 10 — Summary della valutazione dopo correzione del benchmark](images/fig10-evaluation-summary.png)
-*Figura 10 — Evaluation high-level summary (by the author)*
+*Figura 10 — Evaluation high-level summary*
 
 Con un benchmark correttamente compilato, il risultato tipico è circa **75% di accuracy** su 72 domande.
 
@@ -419,7 +419,7 @@ final.to_excel(output_xlsx, index=False)
 print(f"Saved: {output_xlsx}")
 ```
 
-> ✅ **Check:** il file Excel di audit è stato esportato nel Lakehouse e descargato. Sono visibili le colonne `question_id`, `sdk_verdict`, `actual_answer` e `thread_url`.
+> ✅ **Check:** il file Excel di audit è stato esportato nel Lakehouse. Sono visibili le colonne `question_id`, `sdk_verdict`, `actual_answer` e `thread_url`.
 
 ---
 
@@ -428,7 +428,7 @@ print(f"Saved: {output_xlsx}")
 Eseguire il benchmark più volte con le stesse impostazioni aiuta a capire se i risultati sono stabili o variano in modo significativo:
 
 ![Figura 11 — Variabilità tra run multipli](images/fig11-multiple-evaluation-summaries.png)
-*Figura 11 — Multiple evaluation summaries (by the author)*
+*Figura 11 — Multiple evaluation summaries*
 
 Due cause principali di variabilità sono:
 
@@ -461,14 +461,14 @@ Tre dettagli rilevanti emersi dall'ispezione:
 
 1. **Il prompt è intenzionalmente minimalista** e generico. Funziona come baseline, ma può essere fragile su output complessi.
 2. **Contiene piccoli typo** (`satifies` invece di `satisfies`, `satify` invece di `satisfy`, doppio punto finale). Non compromettono il funzionamento ma segnalano che anche i default SDK devono essere ispezionati prima di essere trattati come autorevoli.
-3. **Il parsing del verdetto è brittle**: l'SDK fa un semplice substring check sul testo restituito (`"no"` → `False`, `"yes"` → `True`, altro → `None`/unclear). Se il modello risponde con una frase invece di una parola sola, il risultato può essere classificato in modo errato.
+3. **Il parsing del verdetto è fragile**: l'SDK fa un semplice substring check sul testo restituito (`"no"` → `False`, `"yes"` → `True`, altro → `None`/unclear). Se il modello risponde con una frase invece di una parola sola, il risultato può essere classificato in modo errato.
 
 ### Il placeholder `{actual_answer}` non funziona
 
 Alcuni esempi online mostrano l'uso di `{actual_answer}` in un critic prompt custom:
 
 ![Figura 12 — Esempio errato con placeholder actual_answer](images/fig12-actual-answer-placeholder-warning.png)
-*Figura 12 — Example of the incorrect use of the {actual_answer} placeholder (by the author)*
+*Figura 12 — Example of the incorrect use of the {actual_answer} placeholder*
 
 Un'ispezione del codice sorgente SDK (versione `0.1.19a0`) conferma che `actual_answer` viene prodotto e salvato nella tabella di output, ma **non viene iniettato nel template del critic_prompt**. Usare `{actual_answer}` in un critic prompt custom genera un errore. Solo `{query}` e `{expected_answer}` sono supportati.
 
@@ -506,7 +506,7 @@ print(f"Evaluation ID: {evaluation_id}")
 > ⚠️ **Risultato sorprendente:** aggiungere istruzioni apparentemente ragionevoli al critic prompt (come "ignora differenze di formato") ha prodotto nella nostra esperienza un'accuracy **peggiore** (68.1% vs 75.0%) rispetto al prompt di default.
 
 ![Figura 13 — Peggioramento con critic prompt custom](images/fig13-custom-critic-worse-performance.png)
-*Figura 13 — Worse performance using our custom critic prompt (by the author)*
+*Figura 13 — Worse performance using our custom critic prompt*
 
 Questo dimostra che i critic prompt custom devono essere trattati come **esperimenti controllati**, non come miglioramenti automatici. Con GPT-4o come giudice, anche una rifinazione apparentemente ovvia può spostare il decision boundary in modo imprevedibile. Tratta il default come baseline, verifica su benchmark pulito, e sperimenta con cautela.
 
@@ -546,7 +546,7 @@ Prima di considerare il Lab 03 completato:
 
 ---
 
-## Troubleshooting frequente
+## Troubleshooting Errori Comuni
 
 | Problema | Causa probabile | Soluzione |
 |---|---|---|
