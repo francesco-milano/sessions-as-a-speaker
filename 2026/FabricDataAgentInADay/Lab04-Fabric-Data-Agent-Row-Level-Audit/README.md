@@ -710,4 +710,4 @@ Se vuoi una stima più robusta dell'accuracy reale, esegui il benchmark almeno *
 
 ➡️ **Lab 05 – Row-Level Security con Fabric Data Agent e Power BI Copilot**
 
-Nel Lab 05 affrontiamo la sicurezza dei dati tramite Row-Level Security (RLS) di SQL Server. Il filtro viene applicato trasparentemente a livello del motore SQL basato sull'identità dell'utente: l'utente admin vede tutti i negozi, l'utente reader vede solo tre negozi specifici. Metteremo a confronto la stessa domanda dai due utenti verificando risultati diversi senza modifica al prompt, e concluderemo con una demo in Power BI Copilot.
+Nel prossimo laboratorio affrontiamo la sicurezza dei dati tramite Row-Level Security (RLS) di SQL Server. Il filtro viene applicato trasparentemente a livello del motore SQL basato sull'identità dell'utente: l'utente admin vede tutti i negozi, l'utente reader vede solo tre negozi specifici. Metteremo a confronto la stessa domanda dai due utenti verificando risultati diversi senza modifica al prompt, e concluderemo con una demo in Power BI Copilot.
