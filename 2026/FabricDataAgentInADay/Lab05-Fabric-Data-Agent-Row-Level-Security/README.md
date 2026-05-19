@@ -94,14 +94,21 @@ AS
 
 ---
 
-### Step 3 – Creare la security policy
+### Step 3 – Creare le security policy
 
-La security policy aggangia la funzione di predicato alla tabella `[retail].[orders]` usando la colonna `store_id` come argomento di filtro:
+Le security policy agganciano la funzione di predicato alle tabella `[retail].[orders]` e `[retail].[order_items]` usando la colonna `store_id` come argomento di filtro:
 
 ```sql
-CREATE SECURITY POLICY UserFilter
+CREATE SECURITY POLICY UserFilterOrders
 ADD FILTER PREDICATE dbo.fn_StoresSecurity(store_id) 
 ON [retail].[orders]
+WITH (STATE = ON);
+```
+
+```sql
+CREATE SECURITY POLICY UserFilterOrderItems
+ADD FILTER PREDICATE dbo.fn_StoresSecurity(store_id) 
+ON [retail].[order_items]
 WITH (STATE = ON);
 ```
 
@@ -109,15 +116,15 @@ WITH (STATE = ON);
 
 > 💡 **Filter predicate vs Block predicate:** la RLS supporta due tipi di predicato. Il **filter predicate** (quello che stiamo usando) filtra silenziosamente le righe in lettura: l'utente non riceve un errore, vede semplicemente meno dati. Il **block predicate** blocca operazioni di scrittura non autorizzate. Per gli scenari di Data Agent in sola lettura, il filter predicate è sempre la scelta corretta.
 
-Essendo la tabella `[retail].[orders]` una tabella di fatto centrale, è sufficiente applicare la RLS su di essa. Le altre tabelle (es. `[retail].[order_items]`, `[retail].[stores]`) sono collegate tramite join, quindi il filtro sulla tabella degli ordini si propaga naturalmente a tutte le query che coinvolgono quelle tabelle.
+Durante i nostri test, i Data Agent si sono rivelati piacevolmente smart. Nonostante le query di esempio fornite prevedessero sempre una catena di join complessa, domande come **"Qual è il totale del venduto dell'intero database?"** sono state risolte (correttamente) come una semplice aggregazione sulla tabella `[retail].[order_items]`. Questo comportamento ci costringe ad applicare le security policy sia alle testate che alle righe ordine. In uno scenario reale e complesso, tuttavia, la soluzione prevederebbe di definire più predicati, uno per ogni campo di chiave esterna.
 
-> ✅ **Check:** la security policy `UserFilter` è stata creata con `STATE = ON` e non ha generato errori.
+> ✅ **Check:** le security policy `UserFilterOrders` e `UserFilterOrderItems` sono state create con `STATE = ON` e non hanno generato errori.
 
 ---
 
-### Step 4 – Verifica rapida della policy
+### Step 4 – Verifica rapida delle policy
 
-Prima di procedere con il Data Agent, verifica direttamente nel query editor che la policy sia attiva e che il filtro funzioni.
+Prima di procedere con il Data Agent, verifica direttamente nel query editor che le policy siano state attivate e che il filtro funzioni.
 
 **Test come utente admin:**
 
@@ -127,7 +134,7 @@ Esegui la seguente query come utente admin:
 SELECT DISTINCT store_id FROM [retail].[orders] ORDER BY store_id;
 ```
 
-Dovresti vedere tutti i `store_id` disponibili nel database (da 1 a 8). Se stai usando l'editor di Fabric o SSMS con l'utente admin, questo è il comportamento atteso perché la funzione di predicato restituisce 1 per qualsiasi `store_id` quando `USER_NAME()` corrisponde all'admin.
+Dovresti vedere tutti gli `store_id` disponibili nel database (da 1 a 8). Se stai usando l'editor di Fabric o SSMS con l'utente admin, questo è il comportamento atteso perché la funzione predicato restituisce 1 per qualsiasi `store_id` quando `USER_NAME()` corrisponde all'admin.
 
 **Test come utente reader:**
 
@@ -137,9 +144,9 @@ Esegui la stessa query aprendola con una connessione autenticata come utente *re
 SELECT DISTINCT store_id FROM [retail].[orders] ORDER BY store_id;
 ```
 
-In questo caso dovresti vedere **solo i `store_id` 1, 2 e 6** (Seattle, Bellevue e Redmond), perché la funzione di predicato restituisce 1 esclusivamente per quei valori quando `USER_NAME()` corrisponde al reader. Tutti gli altri `store_id` vengono filtrati silenziosamente prima che il result set raggiunga il chiamante.
+In questo caso dovresti vedere **solo gli `store_id` 1, 2 e 6** (Seattle, Bellevue e Redmond), perché la funzione predicato restituisce 1 esclusivamente per quei valori quando `USER_NAME()` corrisponde al reader. Tutti gli altri `store_id` vengono filtrati silenziosamente prima che il result set raggiunga il chiamante.
 
-La differenza tra i due risultati conferma che la policy è attiva e funziona correttamente:
+La differenza tra i due risultati conferma che le policy sono attive e funzionano correttamente:
 
 | Utente | `store_id` restituiti |
 |---|---|
@@ -349,7 +356,8 @@ Prima di considerare il Lab 05 completato:
 
 - [ ] `SELECT USER_NAME()` eseguito e valore annotato per l'utente admin
 - [ ] Funzione `dbo.fn_StoresSecurity` creata senza errori
-- [ ] Security policy `UserFilter` creata con `STATE = ON`
+- [ ] Security policy `UserFilterOrders` creata con `STATE = ON`
+- [ ] Security policy `UserFilterOrderItems` creata con `STATE = ON`
 - [ ] Verifica rapida: come admin la query su `store_id` restituisce tutti i valori (1–8); come reader restituisce solo 1, 2 e 6
 - [ ] Data Agent `zava-agent` pubblicato
 - [ ] Data Agent `zava-agent` condiviso con l'utente reader
@@ -360,7 +368,7 @@ Prima di considerare il Lab 05 completato:
 
 ---
 
-## Troubleshooting frequente
+## Troubleshooting Errori Comuni
 
 | Problema | Causa probabile | Soluzione |
 |---|---|---|
@@ -376,10 +384,11 @@ Prima di considerare il Lab 05 completato:
 
 ## Cleanup dell'environment
 
-Al termine della demo, rimuovi la security policy e la funzione di predicato per riportare il database `ZavaRetail` allo stato iniziale:
+Al termine della demo, rimuovi le security policy e la funzione di predicato per riportare il database `ZavaRetail` allo stato iniziale:
 
 ```sql
-DROP SECURITY POLICY UserFilter;
+DROP SECURITY POLICY UserFilterOrders;
+DROP SECURITY POLICY UserFilterOrderItems;
 DROP FUNCTION dbo.fn_StoresSecurity;
 ```
 

@@ -708,6 +708,6 @@ Se vuoi una stima più robusta dell'accuracy reale, esegui il benchmark almeno *
 
 ## Prossimo Step
 
-➡️ **Lab 05 – Valutazione con un modello backend alternativo (se disponibile)**
+➡️ **Lab 05 – Row-Level Security con Fabric Data Agent e Power BI Copilot**
 
-Con il benchmark stabilizzato e la configurazione del Data Agent ottimizzata, il passo successivo naturale è esplorare l'impatto del backend model. In Microsoft Foundry Agent Service, il passaggio a un modello più recente come gpt-5 mini (soggetto a disponibilità per region e deployment type) potrebbe migliorare ulteriormente la stabilità su domande con phrasing ambiguo e payload analitico denso, riducendo la variabilità residua che non è eliminabile solo con prompt engineering.
+Nel prossimo laboratorio affrontiamo la sicurezza dei dati tramite Row-Level Security (RLS) di SQL Server. Il filtro viene applicato trasparentemente a livello del motore SQL basato sull'identità dell'utente: l'utente admin vede tutti i negozi, l'utente reader vede solo tre negozi specifici. Metteremo a confronto la stessa domanda dai due utenti verificando risultati diversi senza modifica al prompt, e concluderemo con una demo in Power BI Copilot.

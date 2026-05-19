@@ -578,4 +578,4 @@ Implicazioni operative:
 
 ➡️ **Lab 04 – Audit Row-Level dei Verdetti di Valutazione**
 
-Il prossimo laboratorio (se disponibile) analizza quali domande cambiano verdetto tra run diverse, perché cambiano, e cosa questo rivela sulla robustezza reale del Fabric Data Agent e sul comportamento del validator. Questo livello di analisi consente di separare i fallimenti genuini dell'agente dall'ambiguità residua del benchmark e del processo di valutazione.
+Il prossimo laboratorio analizza quali domande cambiano verdetto tra run diverse, perché cambiano, e cosa questo rivela sulla robustezza reale del Fabric Data Agent e sul comportamento del validator. Questo livello di analisi consente di separare i fallimenti genuini dell'agente dall'ambiguità residua del benchmark e del processo di valutazione.
