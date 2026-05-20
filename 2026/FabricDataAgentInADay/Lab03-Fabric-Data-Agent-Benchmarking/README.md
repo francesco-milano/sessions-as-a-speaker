@@ -301,6 +301,18 @@ Al termine dell'esecuzione, aggiorna la cartella **Tables** nel Lakehouse `evalu
 
 ## Step 9 – Lettura del primo verdetto: summary metrics
 
+In un primo momento il file di benchmark con le risposte attese si era corrotto, dunque i primi risultati erano molto scoraggianti. Dopo alcune correzioni al file benchmark, l'output durante l'esecuzione della evaluation è diventato più coerente:
+
+![Figura 8 — Risultati che non corrispondono al ground truth (primo run)](images/fig08-suboptimal-results.png)
+*Figura 8 — Results that don't match the ground truth*
+
+> 💡 È possibile cliccare sui link presenti nell'output per vedere il dettaglio della risposta dell'agente per ogni domanda.
+
+![Figura 9 — Dettaglio di un thread di valutazione](images/fig09-evaluation-thread-detail.png)
+*Figura 9 — Example of one thread highlighted by the evaluation*
+
+Con il benchmark corretto, il risultato ottenuto è stato di circa **75% di accuracy** su 72 domande. Come facciamo a calcolare questo valore?
+
 ```python
 from fabric.dataagent.evaluation import get_evaluation_summary
 
@@ -314,20 +326,8 @@ summary_df
 
 La funzione restituisce le metriche aggregate: totale domande valutate, conteggi correct/incorrect/unclear e accuracy complessiva.
 
-![Figura 8 — Risultati che non corrispondono al ground truth (primo run)](images/fig08-suboptimal-results.png)
-*Figura 8 — Results that don't match the ground truth*
-
-> 💡 È possibile cliccare sui link presenti nell'output per vedere il dettaglio della risposta dell'agente per ogni domanda.
-
-![Figura 9 — Dettaglio di un thread di valutazione](images/fig09-evaluation-thread-detail.png)
-*Figura 9 — Example of one thread highlighted by the evaluation*
-
-Dopo alcune correzioni al file benchmark (vedi Step 11), il summary dovrebbe apparire più coerente:
-
 ![Figura 10 — Summary della valutazione dopo correzione del benchmark](images/fig10-evaluation-summary.png)
 *Figura 10 — Evaluation high-level summary*
-
-Con un benchmark correttamente compilato, il risultato tipico è circa **75% di accuracy** su 72 domande.
 
 > ✅ **Check:** `summary_df` mostra il totale delle domande valutate e l'accuracy complessiva.
 
@@ -423,7 +423,7 @@ print(f"Saved: {output_xlsx}")
 
 ---
 
-## Step 11 – Analisi della stabilità del validator
+## Step 11 – Analisi della stabilità del validatore
 
 Eseguire il benchmark più volte con le stesse impostazioni aiuta a capire se i risultati sono stabili o variano in modo significativo:
 
@@ -432,7 +432,7 @@ Eseguire il benchmark più volte con le stesse impostazioni aiuta a capire se i 
 
 Due cause principali di variabilità sono:
 
-1. **Non-determinismo del modello LLM** nel valutare le risposte: il path interno dell'SDK usa GPT-4o come giudice, non GPT-4.1.
+1. **Non-determinismo del modello LLM** nel valutare le risposte: il validatore interno all'SDK utilizza GPT-4o come giudice, non GPT-4.1 come l'attuale backend del Data Agent. Questo può portare a verdetti diversi su risposte borderline.
 2. **Problemi nel file benchmark**: errori o inconsistenze nella colonna `expected_answer` possono far apparire il validator più fragile di quanto sia realmente.
 
 > ⚠️ **Lezione importante:** se i risultati iniziali sembrano troppo pessimistici, ricontrolla prima il file benchmark prima di attribuire tutti i problemi al validator. Nella nostra esperienza, dopo aver corretto alcuni problemi nel file Excel, la stabilità del validator è migliorata significativamente.
